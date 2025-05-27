@@ -15,7 +15,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Set the camera position
-camera.position.z = 5;
+camera.position.z = 15;
 
 // Lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
@@ -62,8 +62,39 @@ loader.load(
     function (object) {
         // This function is called when the load is complete
         loadedObject = object; // Store the loaded object
-        loadedObject.position.set(0, 0, 0);
-        loadedObject.scale.set(1, 1, 1); // Default scale, adjust if needed
+        const box = new THREE.Box3().setFromObject(loadedObject);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const center = new THREE.Vector3();
+        box.getCenter(center);
+
+        console.log('Applying debug material...');
+        loadedObject.traverse(function (child) {
+            if (child.isMesh) {
+                child.material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+            }
+        });
+
+        // Auto-center and normalize scale
+        // const box = new THREE.Box3().setFromObject(loadedObject); // Already calculated above
+        // const size = new THREE.Vector3(); // Already calculated above
+        // box.getSize(size); // Already calculated above
+        // const center = new THREE.Vector3(); // Already calculated above
+        // box.getCenter(center); // Already calculated above
+
+        // 1. Center the object
+        loadedObject.position.sub(center); // Move object by -center to bring its bbox center to origin
+
+        // 2. Normalize scale
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const desiredSize = 5.0;
+        const scale = desiredSize / maxDim;
+        loadedObject.scale.set(scale, scale, scale);
+
+        console.log('Object auto-centered and scaled. New scale:', scale);
+
+        // loadedObject.position.set(0, 0, 0); // Replaced by auto-centering
+        // loadedObject.scale.set(1, 1, 1); // Replaced by auto-scaling
         scene.add(loadedObject);
         console.log('Object loaded successfully and added to scene');
     },
