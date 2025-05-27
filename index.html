@@ -568,6 +568,10 @@
             // renderer.setRenderTarget(null); // If trail effect removed
 
             if (controls) controls.update(); // Update controls
+
+            // Add this line for debugging:
+            if (renderer && scene && camera) renderer.render(scene, camera); 
+
             if (composer) composer.render(); // Render post-processing stack
         }
     </script>
