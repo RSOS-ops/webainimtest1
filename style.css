@@ -1,7 +1,11 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html, body {
-  background-color: black;
-  width: 100%;
-  height: 100%;
+  background-color: black; /* This was already there */
+  width: 100vw; /* Use viewport width */
+  height: 100vh; /* Use viewport height */
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -46,9 +50,9 @@ html, body {
 }
 
 canvas.draw {
-  display: block; /* Ensure it's a block element */
-  width: 100%;    /* Make it take full width of its container */
-  height: 100%;   /* Make it take full height of its container */
-  border: 2px solid red; /* Bright red border for visibility */
-  background-color: rgba(0, 0, 255, 0.1); /* Faint blue background */
+  display: block; 
+  width: 100%;    
+  height: 100%;   
+  border: 2px solid red; 
+  background-color: rgba(0, 0, 255, 0.1); 
 }
