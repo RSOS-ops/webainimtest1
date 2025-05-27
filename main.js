@@ -1,5 +1,6 @@
 // Create a new Three.js scene
 const scene = new THREE.Scene();
+let loadedObject; // Declare loadedObject
 
 // Create a perspective camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -44,10 +45,37 @@ const particleSystem = new THREE.Points(particles, particleMaterial);
 // Add the particle system to the scene
 scene.add(particleSystem);
 
+// Instantiate the loader
+const loader = new THREE.OBJLoader();
+
+// Call the loader's load method
+loader.load(
+    'https://github.com/RSOS-ops/webainimtest1/blob/e87d0d7c12595c87ac178d5b2617d515725f95a8/Shadowed_Gaze.obj',
+    function (object) {
+        // This function is called when the load is complete
+        loadedObject = object; // Store the loaded object
+        loadedObject.position.set(0, 0, 0);
+        loadedObject.scale.set(1, 1, 1); // Default scale, adjust if needed
+        scene.add(loadedObject);
+        console.log('Object loaded successfully and added to scene');
+    },
+    function (xhr) {
+        // This function is called during loading (progress)
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    },
+    function (error) {
+        // This function is called if an error occurs
+        console.error('An error happened during loading:', error);
+    }
+);
+
 // Create a basic animation loop
 function animate() {
     requestAnimationFrame(animate);
-    particleSystem.rotation.y += 0.001; // Example animation: rotate particles
+    particleSystem.rotation.y += 0.001;
+    if (loadedObject) { // Check if the object has been loaded
+        loadedObject.rotation.y += 0.0002; // Rotate slowly
+    }
     renderer.render(scene, camera);
 }
 animate();
