@@ -26,6 +26,12 @@ var init = function(){
     return; // Stop further execution if ParticleSlider fails
   }
 
+  // Add this new block:
+  if (ps) {
+    console.log('Explicitly calling ps.init(true) post-instantiation.');
+    ps.init(true);
+  }
+
   try {
     console.log("Attempting to initialize dat.GUI...");
     if (typeof dat === 'undefined') {
