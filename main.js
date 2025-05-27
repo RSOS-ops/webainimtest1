@@ -34,6 +34,13 @@ document.getElementById('scene-container').appendChild(renderer.domElement);
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
+// --- Simple Cube Test ---
+const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+scene.add(cube);
+// --- End Simple Cube Test ---
+
 // Font Loading
 const fontLoader = new FontLoader();
 fontLoader.load('https://unpkg.com/three/examples/fonts/helvetiker_regular.typeface.json', (font) => {
@@ -47,7 +54,7 @@ fontLoader.load('https://unpkg.com/three/examples/fonts/helvetiker_regular.typef
     console.log('Stack Data:', stackData);
     console.log('Mask Cache:', maskCache);
 
-    currentStateFunction = nextMaskState; // Kick off the animation sequence
+    // currentStateFunction = nextMaskState; // Kick off the animation sequence - COMMENTED OUT FOR CUBE TEST
 });
 
 function createTextEffect(stackIndex) {
