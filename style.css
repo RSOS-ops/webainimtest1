@@ -44,3 +44,11 @@ html, body {
   height: 32px;
   fill: #1da1f2;
 }
+
+canvas.draw {
+  display: block; /* Ensure it's a block element */
+  width: 100%;    /* Make it take full width of its container */
+  height: 100%;   /* Make it take full height of its container */
+  border: 2px solid red; /* Bright red border for visibility */
+  background-color: rgba(0, 0, 255, 0.1); /* Faint blue background */
+}
