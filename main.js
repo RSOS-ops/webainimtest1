@@ -17,6 +17,14 @@ document.body.appendChild(renderer.domElement);
 // Set the camera position
 camera.position.z = 5;
 
+// Lighting
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Soft white light
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // White light from a direction
+directionalLight.position.set(5, 10, 7.5); // Position the light
+scene.add(directionalLight);
+
 // Define the number of particles
 const particleCount = 5000;
 
@@ -50,7 +58,7 @@ const loader = new THREE.OBJLoader();
 
 // Call the loader's load method
 loader.load(
-    'https://github.com/RSOS-ops/webainimtest1/blob/e87d0d7c12595c87ac178d5b2617d515725f95a8/Shadowed_Gaze.obj',
+    'https://raw.githubusercontent.com/RSOS-ops/webainimtest1/e87d0d7c12595c87ac178d5b2617d515725f95a8/Shadowed_Gaze.obj',
     function (object) {
         // This function is called when the load is complete
         loadedObject = object; // Store the loaded object
