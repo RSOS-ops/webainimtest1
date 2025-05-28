@@ -11,8 +11,8 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xeeeeee); // Light gray background
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000); // Updated far plane
+    camera.position.set(0, 5, 10); // Updated initial camera position
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -42,15 +42,10 @@ function init() {
         function (loadedObject) {
             object = loadedObject; // Store the loaded object
 
-            // Apply MeshStandardMaterial to children
+            // Apply MeshNormalMaterial to children
             object.traverse(function (child) {
-                if (child instanceof THREE.Mesh) {
-                    child.material = new THREE.MeshStandardMaterial({
-                        color: 0x808080,
-                        metalness: 0.5,
-                        roughness: 0.5,
-                        // wireframe: true // Useful for debugging model structure
-                    });
+                if (child.isMesh) { // Changed from 'instanceof THREE.Mesh' to 'isMesh' for wider compatibility
+                    child.material = new THREE.MeshNormalMaterial();
                 }
             });
 
@@ -58,20 +53,16 @@ function init() {
             const boundingBox = new THREE.Box3().setFromObject(object);
             const center = boundingBox.getCenter(new THREE.Vector3());
             object.position.sub(center);
-
-            // Optionally, scale the object if it's too big or too small
-            const size = boundingBox.getSize(new THREE.Vector3());
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 3 / maxDim; // Adjust '3' to desired display size
-            object.scale.set(scale, scale, scale);
             
             scene.add(object);
+            camera.lookAt(0,0,0); // Ensure camera looks at the origin
         },
-        function (xhr) {
+        function (xhr) { // onProgress callback
             console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         },
-        function (error) {
-            console.error('An error happened during loading:', error);
+        function (error) { // onError callback
+            alert('An error happened while loading the OBJ model: ' + error);
+            console.error('An error happened while loading the OBJ model:', error);
         }
     );
 

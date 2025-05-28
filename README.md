@@ -17,6 +17,8 @@ To view and interact with this 3D scene:
     *   Open your web browser (e.g., Chrome, Firefox, Edge).
     *   Go to the address `http://localhost:8000` (or the port your server is running on).
 
+    **Note**: `main.js` uses ES6 module features (like `import`). The `script` tag in `index.html` that loads `main.js` must include the `type="module"` attribute for it to work correctly. This has been pre-configured in the provided `index.html`.
+
 3.  **View the Scene.**
     *   You should see the `Shadowed_Gaze.obj` model rotating in the center of the page.
     *   You can use your mouse to orbit around the object (thanks to OrbitControls).
