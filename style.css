@@ -1,10 +1,11 @@
 body {
     margin: 0;
-    overflow: hidden; /* Prevent scrollbars from appearing */
+    overflow: hidden; /* Prevent scrollbars */
+    background-color: #111; /* Dark gray background */
 }
 
-#scene-container {
-    width: 100vw;
-    height: 100vh;
-    display: block;
+canvas#glCanvas {
+    display: block; /* Remove any default spacing */
+    width: 100vw;   /* Full viewport width */
+    height: 100vh;  /* Full viewport height */
 }
