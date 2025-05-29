@@ -153,8 +153,8 @@ function initBuffers() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // Texture Coordinate Buffer (Placeholder)
-    const textureCoordinates = [0.0, 0.0]; // Placeholder
+    // Texture Coordinate Buffer - updated to sample center of texture
+    const textureCoordinates = [0.5, 0.5]; // Sample center of the texture
     textureCoordBuffer = gl.createBuffer();
     if (!textureCoordBuffer) {
         console.error("Failed to create the texture coordinate buffer.");
