@@ -7,6 +7,8 @@ let shaderProgram;
 let positionBuffer;
 let textureCoordBuffer;
 let imageTexture = null; // For the loaded image
+let numPoints = 0; // Global to store the number of points to draw
+let loadedImageData = null; // Global to store image data after loading
 
 // Shader sources will be loaded from files
 
@@ -142,10 +144,42 @@ function initBuffers() {
         console.error("GL context or shader program not available for buffer initialization.");
         return false;
     }
+    if (!loadedImageData) {
+        console.error("Image data not available for buffer initialization.");
+        return false;
+    }
+
+    const positions = [];
+    const texCoords = [];
+    numPoints = 0; // Reset numPoints
+
+    const { width, height, pixels } = loadedImageData;
+
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const pixelIndex = (y * width + x) * 4;
+            const alpha = pixels[pixelIndex + 3];
+
+            if (alpha > 128) { // Alpha threshold
+                // Normalized Device Coordinates (NDC) for a_particlePosition
+                const ndcX = (x / width) * 2.0 - 1.0;
+                const ndcY = (y / height) * -2.0 + 1.0; // Y inverted
+                positions.push(ndcX, ndcY);
+
+                // Normalized Texture Coordinates for a_textureCoord
+                const texU = x / width;
+                const texV = y / height;
+                texCoords.push(texU, texV);
+
+                numPoints++;
+            }
+        }
+    }
+    
+    console.log(`Processed image: ${width}x${height}. Generated ${numPoints} particles.`);
 
     // Position Buffer
-    const positions = [0.0, 0.0]; // Single point at the center
-    positionBuffer = gl.createBuffer();
+    if (!positionBuffer) positionBuffer = gl.createBuffer();
     if (!positionBuffer) {
         console.error("Failed to create the position buffer.");
         return false;
@@ -153,24 +187,26 @@ function initBuffers() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // Texture Coordinate Buffer - updated to sample center of texture
-    const textureCoordinates = [0.5, 0.5]; // Sample center of the texture
-    textureCoordBuffer = gl.createBuffer();
+    // Texture Coordinate Buffer
+    if (!textureCoordBuffer) textureCoordBuffer = gl.createBuffer();
     if (!textureCoordBuffer) {
         console.error("Failed to create the texture coordinate buffer.");
         return false;
     }
     gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
     
     gl.bindBuffer(gl.ARRAY_BUFFER, null); // Unbind buffer
-    console.log("Buffers created and data loaded.");
+    console.log("Particle buffers created and data loaded.");
     return true;
 }
 
 function drawScene() {
-    if (!gl || !shaderProgram || !positionBuffer || !textureCoordBuffer) {
-        console.error("GL context, shader program, or buffers not available for drawing.");
+    if (!gl || !shaderProgram || !positionBuffer || !textureCoordBuffer || numPoints === 0) {
+        // console.warn("GL context, shader program, buffers not available, or no points to draw.");
+        // Allow it to proceed to clear the screen even if there's nothing to draw yet.
+        gl.clearColor(0.0, 0.0, 0.0, 1.0); // Black, fully opaque
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         return;
     }
 
@@ -208,7 +244,7 @@ function drawScene() {
     // Set Uniforms
     const pointSizeUniformLocation = gl.getUniformLocation(shaderProgram, "u_pointSize");
     if (pointSizeUniformLocation) {
-        gl.uniform1f(pointSizeUniformLocation, 10.0); // Set point size
+        gl.uniform1f(pointSizeUniformLocation, 1.0); // Set point size to 1.0
     }
     
     const resolutionUniformLocation = gl.getUniformLocation(shaderProgram, "u_resolution");
@@ -228,7 +264,7 @@ function drawScene() {
     }
 
     // Draw
-    gl.drawArrays(gl.POINTS, 0, 1); // Draw 1 point
+    gl.drawArrays(gl.POINTS, 0, numPoints); // Draw all generated points
 
     gl.bindBuffer(gl.ARRAY_BUFFER, null); // Unbind buffer
     gl.bindTexture(gl.TEXTURE_2D, null); // Unbind texture
@@ -326,15 +362,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (webGLInitialized) {
         console.log("WebGL core initialized. Loading image...");
         try {
-            const imageData = await loadImage('CoryPill_BlkBG.png');
-            console.log('Image loaded successfully:', imageData.width, 'x', imageData.height);
+            // Assign to global loadedImageData
+            loadedImageData = await loadImage('CoryPill_BlkBG.png'); 
+            console.log('Image loaded successfully:', loadedImageData.width, 'x', loadedImageData.height);
 
-            if (!setupImageTexture(imageData)) {
+            if (!setupImageTexture(loadedImageData)) { // Use global loadedImageData
                 console.error("Failed to setup image texture. Cannot proceed.");
                 return;
             }
 
-            if (!initBuffers()) { // initBuffers is now called after texture setup
+            if (!initBuffers()) { // initBuffers now uses global loadedImageData
                 console.error("Buffer initialization failed. Cannot proceed.");
                 return;
             }
@@ -366,4 +403,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Export for potential use in other modules
-export { gl, canvas, loadImage, shaderProgram, positionBuffer, textureCoordBuffer, imageTexture };
+export { gl, canvas, loadImage, shaderProgram, positionBuffer, textureCoordBuffer, imageTexture, numPoints, loadedImageData };
